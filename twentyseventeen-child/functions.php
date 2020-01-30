@@ -5,27 +5,21 @@ class customRegistrationSystem{
 	 		* class constructor holding all actions
 	 		*/
 		public function __construct(){
-				add_action( 'wp_enqueue_scripts', array( $this,'childtheme_enqueue_styles') );
 				add_action( 'wp_enqueue_scripts', array( $this,'custom_enqueue_style_script') );
 				add_shortcode('user_register_form',array( $this,'user_register_form') );
 				add_action( "wp_ajax_user_registration_ajax_func", array( $this,"user_registration_ajax_func") );
 				add_action( "wp_ajax_nopriv_user_registration_ajax_func",array( $this, "user_registration_ajax_func") );
 		}
 			/**
-	 		* Enqueue parent scripts
-	 		*/
-		public function childtheme_enqueue_styles() {
-		    wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );
-		    wp_enqueue_style( 'child-style',
-		        get_stylesheet_directory_uri() . '/style.css',
-		        array('parent-style')
-		    );
-		}
-			/**
 	 		* Enqueue custom scripts
 	 		*/
 
 		public function custom_enqueue_style_script(){
+			wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );
+		    wp_enqueue_style( 'child-style',
+		        get_stylesheet_directory_uri() . '/style.css',
+		        array('parent-style')
+		    );
 			wp_enqueue_style( 'bootstrap-style', get_stylesheet_directory_uri() . '/assets/css/bootstrap.min.css');
 		    wp_enqueue_script( 'bootstrap-script',
 		        get_stylesheet_directory_uri() . '/assets/js/bootstrap.min.js',array(),'1.0.0',true);
@@ -60,7 +54,7 @@ class customRegistrationSystem{
 			ob_start();
 			if (is_user_logged_in()) : 
 			    ?>
-			    <a role="button" href="You are already logged in <?php echo wp_logout_url('/'); ?>">Log Out</a>
+			    <p>You are already logged in <a role="button" href="<?php echo wp_logout_url(); ?>">Log out</a></p>
 
 			<?php 
 				else : 
@@ -100,22 +94,21 @@ class customRegistrationSystem{
 			/**
 			* we check the WordPress AJAX nonce
 			*/
+
 			check_ajax_referer( 'create_user_reg', 'security' );
 
 			$user_name 		= sanitize_text_field($_POST['user_name']);
-			$user_password 	= sanitize_text_field($_POST['user_password']);
+			$user_password 	= $_POST['user_password'];
 			$user_email 	= sanitize_email($_POST['user_email']);
-			$user_pass 		= wp_generate_password(12, false);
-			if(email_exists( $user_email )){
-				echo "user email already in use please try something new";
+			if(email_exists( $user_email ) || username_exists( $user_name )){
+				echo "user email or username already in use please try something new";
 			}
 			else{
 				$user_id = wp_insert_user(
 					array(
 						'user_email' => $user_email,
 						'user_login' => $user_name,
-						'user_pass'  => $user_pass,
-						'first_name' => $user_name
+						'user_pass'  => $user_password
 					)
 				);
 				if ($user_id !== '') {
@@ -124,8 +117,8 @@ class customRegistrationSystem{
 						$body = '
 						<h1>Dear ' . $user_name . ',</h1></br>
 						<p>Thank you for joining our site. Your account is now active.</p>
-						<p>Username:- '.$user_email.'</p><br>
-						<p>Password:- '.$user_pass.'</p><br>
+						<p>Username:- '.$user_name.'</p><br>
+						<p>Password:- '.$user_password.'</p><br>
 						<p>Please go ahead and navigate around your account.</p>
 						<p>Login Url:- '.wp_login_url().'</p>
 						<p>Let me know if you have further questions, I am here to help.</p>

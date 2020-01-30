@@ -37,15 +37,16 @@
 			    				action        : 'user_registration_ajax_func'
 			    		},
 			    		success : function(data){
+			    			console.log(data);
 			    			/*
 							 * On  submit form popup with suitable message
 							 */
 							 
-			    			if(data == 'user email already in use please try something new')
+			    			if(data == 'user email or username already in use please try something new')
 			    			{
 			    				jQuery(".custom-reg_loader").css("display","none");
 			    				jQuery('.custom-dailog-body').empty();
-			    				jQuery('.custom-dailog-body').append('<h2 class="error_in_reg">User Email already in use please try something new</h2>');
+			    				jQuery('.custom-dailog-body').append('<h2 class="error_in_reg">User Email or User Name already in use please try something new</h2>');
 			    				jQuery('.custom_popup_alert').css("display","block");
 			    				jQuery(".custom_popup_alert").fadeIn(2500);
 			    				jQuery(".custom_popup_alert").fadeOut(4000);
@@ -64,6 +65,7 @@
 								   window.location.reload(1);
 								}, 4000);
 			    			}
+
 			    		}
 					})
 			  	}
